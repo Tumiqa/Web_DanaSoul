@@ -22,8 +22,14 @@
       href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      #farewell h2 {
+        font-family: "Dancing Script", cursive;
+      }
       /* --- Kiểu cho Bản đồ Tương tác --- */
       #map-section {
         position: relative;
@@ -454,39 +460,42 @@
         height: 100%;
         z-index: 15; /* Above background image and overlay, below text */
       }
-      /* --- Music Player V7 Styles --- */
+      /* Dán đoạn này vào trong thẻ <style> */
+
+      /* --- Music Player Final Version Styles --- */
       #play-pause-btn {
         /* Hiệu ứng thở sẽ được điều khiển bằng JS thông qua box-shadow */
         transition: box-shadow 0.2s linear, background-color 0.3s ease;
       }
 
-      /* Tùy chỉnh thanh trượt âm lượng */
-      input[type="range"].volume-slider {
+      /* Tùy chỉnh thanh trượt âm lượng cho đẹp hơn */
+      #volume-slider {
         -webkit-appearance: none;
         appearance: none;
         width: 100%;
         height: 4px;
-        background: var(--brand-secondary);
+        background: rgba(255, 255, 255, 0.2);
         border-radius: 5px;
         outline: none;
         transition: opacity 0.2s;
       }
-      input[type="range"].volume-slider::-webkit-slider-thumb {
+      #volume-slider::-webkit-slider-thumb {
         -webkit-appearance: none;
         appearance: none;
         width: 14px;
         height: 14px;
-        background: var(--brand-primary);
+        background: var(--text-light);
         cursor: pointer;
         border-radius: 50%;
+        border: 2px solid var(--brand-secondary);
       }
-
-      input[type="range"].volume-slider::-moz-range-thumb {
+      #volume-slider::-moz-range-thumb {
         width: 14px;
         height: 14px;
-        background: var(--brand-primary);
+        background: var(--text-light);
         cursor: pointer;
         border-radius: 50%;
+        border: 2px solid var(--brand-secondary);
       }
     </style>
   </head>
@@ -2548,7 +2557,8 @@
           );
         };
 
-        // --- KẾ HOẠCH CHUYẾN ĐI (LOGIC MỚI) ---
+        // --- KẾ HOẠCH CHUYẾN ĐI (PHIÊN BẢN SỬA LỖI HOÀN CHỈNH) ---
+
         const plannerResult = document.getElementById("planner-result");
         const daysOptionsContainer = document.getElementById(
           "planner-days-options"
@@ -2557,35 +2567,45 @@
           "planner-style-options"
         );
 
+        /**
+         * Hàm khởi tạo và hiển thị các nút lựa chọn cho việc lập kế hoạch.
+         */
         const renderPlannerOptions = () => {
-          // Render Day Buttons
-          const days = [2, 3, 4];
+          const days = [2, 3, 4, 5];
+          const uiText = languageContent[currentLanguage].planner;
+
           daysOptionsContainer.innerHTML = days
             .map(
               (day) => `
-              <button class="planner-option-btn day-btn px-5 py-2 rounded-lg font-medium ${
-                day === 3 ? "active" : ""
-              }" data-day="${day}">${day} ${
-                languageContent[currentLanguage].planner.day_unit || "ngày"
-              }</button>
-            `
+        <button class="planner-option-btn day-btn px-5 py-2 rounded-lg font-medium ${
+          day === 3 ? "active" : ""
+        }" data-day="${day}">
+            ${day} ${uiText.day_unit || "ngày"}
+        </button>
+    `
             )
             .join("");
 
-          // Render Style Buttons
-          const styles = languageContent[currentLanguage].planner.styles;
+          const styles = uiText.styles;
           styleOptionsContainer.innerHTML = Object.keys(styles)
             .map(
               (key) => `
-                <button class="planner-option-btn style-btn px-5 py-2 rounded-lg font-medium" data-style="${key}">${styles[key]}</button>
-            `
+        <button class="planner-option-btn style-btn px-5 py-2 rounded-lg font-medium" data-style="${key}">
+            ${styles[key]}
+        </button>
+    `
             )
             .join("");
 
           attachPlannerEventListeners();
+          generateAndRenderItinerary(); // Gọi lần đầu để hiển thị thông báo mặc định
         };
 
+        /**
+         * Hàm gắn các sự kiện click cho các nút lựa chọn.
+         */
         const attachPlannerEventListeners = () => {
+          // Sự kiện cho nút chọn ngày
           daysOptionsContainer.querySelectorAll(".day-btn").forEach((btn) => {
             btn.addEventListener("click", () => {
               daysOptionsContainer
@@ -2596,265 +2616,472 @@
             });
           });
 
+          // Sự kiện cho nút chọn phong cách (ĐÃ SỬA LỖI: CHỈ CHỌN 1)
           styleOptionsContainer
             .querySelectorAll(".style-btn")
             .forEach((btn) => {
               btn.addEventListener("click", () => {
-                btn.classList.toggle("active");
+                const isActive = btn.classList.contains("active");
+
+                // Luôn xóa 'active' khỏi tất cả các nút trước
+                styleOptionsContainer
+                  .querySelectorAll(".style-btn")
+                  .forEach((b) => b.classList.remove("active"));
+
+                // Nếu nút vừa nhấn chưa active, thì bật nó lên
+                if (!isActive) {
+                  btn.classList.add("active");
+                }
+                // Nếu nhấn lại nút đang active, nó sẽ bị tắt (cho phép bỏ chọn)
+
                 generateAndRenderItinerary();
               });
             });
         };
 
+        /**
+         * Hàm điều phối: Lấy lựa chọn của người dùng, gọi hàm tạo lịch trình và hiển thị kết quả.
+         */
         const generateAndRenderItinerary = () => {
           const selectedDaysEl = document.querySelector(".day-btn.active");
-          if (!selectedDaysEl) {
-            plannerResult.innerHTML = `<p class="text-center text-[var(--text-dark)]">${languageContent[currentLanguage].planner.noResult}</p>`;
-            return;
-          }
+          if (!selectedDaysEl) return;
+
           const selectedDays = parseInt(selectedDaysEl.dataset.day);
           const selectedStyles = Array.from(
             document.querySelectorAll(".style-btn.active")
           ).map((btn) => btn.dataset.style);
 
+          // Nếu không có phong cách nào được chọn, hiển thị thông báo
           if (selectedStyles.length === 0) {
             plannerResult.innerHTML = `<p class="text-center text-[var(--text-dark)]">${languageContent[currentLanguage].planner.noResult}</p>`;
             return;
           }
 
-          const itinerary = generateCombinedItinerary(
+          const itinerary = generateDetailedItineraryV4(
             selectedDays,
-            selectedStyles,
-            currentLanguage
+            selectedStyles
           );
           renderItinerary(itinerary);
         };
 
+        /**
+         * Hàm hiển thị lịch trình lên giao diện (ĐÃ SỬA LỖI & BỎ ICON).
+         * @param {Array<Array<Object>>} plan - Mảng các ngày, mỗi ngày là một mảng các hoạt động.
+         */
         const renderItinerary = (plan) => {
           if (!plan || plan.length === 0) {
             plannerResult.innerHTML = `<p class="text-center text-[var(--text-dark)]">${languageContent[currentLanguage].planner.noResult}</p>`;
             return;
           }
-          const lang = languageContent[currentLanguage].planner;
+          const uiText = languageContent[currentLanguage].planner;
+
           plannerResult.innerHTML = `
-              <h3 class="text-2xl font-bold text-white mb-6 text-center">${
-                lang.resultTitle
-              }</h3>
-              <div class="space-y-6">
-                ${plan
-                  .map(
-                    (dayPlan, index) => `
-                  <div class="bg-[var(--bg-dark)] border border-[var(--brand-secondary)] p-6 rounded-lg">
-                      <h4 class="text-xl font-bold text-[var(--brand-primary)] mb-4">${
-                        lang.day
-                      } ${index + 1}</h4>
-                      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
-                          <div><strong class="block text-white">${
-                            lang.morning
-                          }</strong><p class="text-[var(--text-dark)]">${
-                      dayPlan.morning
-                    }</p></div>
-                          <div><strong class="block text-white">${
-                            lang.afternoon
-                          }</strong><p class="text-[var(--text-dark)]">${
-                      dayPlan.afternoon
-                    }</p></div>
-                          <div><strong class="block text-white">${
-                            lang.evening
-                          }</strong><p class="text-[var(--text-dark)]">${
-                      dayPlan.evening
-                    }</p></div>
-                      </div>
-                  </div>
-                `
-                  )
-                  .join("")}
-              </div>
-            `;
+    <h3 class="text-2xl font-bold text-white mb-6 text-center">${
+      uiText.resultTitle
+    }</h3>
+    <div class="space-y-6">
+      ${plan
+        .map(
+          (dayPlan, index) => `
+        <div class="bg-black/20 border border-[var(--brand-secondary)] p-6 rounded-lg">
+            <h4 class="text-xl font-bold text-[var(--brand-primary)] mb-4">${
+              uiText.day
+            } ${index + 1}</h4>
+            <div class="space-y-5">
+              ${dayPlan
+                .map((activity) => {
+                  // SỬA LỖI: Lặp trực tiếp qua mảng dayPlan
+                  const time =
+                    currentLanguage === "vi"
+                      ? activity.time_vi
+                      : activity.time_en;
+                  const title =
+                    currentLanguage === "vi"
+                      ? activity.activity_vi
+                      : activity.activity_en;
+                  const desc =
+                    currentLanguage === "vi"
+                      ? activity.description_vi
+                      : activity.description_en;
+                  const tip =
+                    currentLanguage === "vi"
+                      ? activity.tip_vi
+                      : activity.tip_en;
+
+                  // HTML đã được loại bỏ icon
+                  return `
+                <div>
+                    <div>
+                        <p class="font-bold text-white">${time}</p>
+                        <p class="font-semibold text-white/90 mt-1">${title}</p>
+                        ${
+                          desc
+                            ? `<p class="text-sm text-[var(--text-dark)] mt-1">${desc}</p>`
+                            : ""
+                        }
+                        ${
+                          tip
+                            ? `<div class="mt-2 text-xs text-[var(--brand-primary)] bg-[var(--brand-secondary)]/50 inline-block px-2 py-1 rounded">${tip}</div>`
+                            : ""
+                        }
+                    </div>
+                </div>`;
+                })
+                .join("")}
+            </div>
+        </div>`
+        )
+        .join("")}
+    </div>`;
+
           gsap.fromTo(
-            plannerResult.children,
-            { opacity: 0, y: 20 },
-            { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }
+            plannerResult,
+            { opacity: 0 },
+            { opacity: 1, duration: 0.5 }
           );
+
+          // Vẫn gọi để đảm bảo các icon khác trên trang (nếu có) được vẽ
+          lucide.createIcons();
         };
 
-        const generateCombinedItinerary = (days, styles, lang) => {
-          // This is a simplified logic. A real-world app would need a much more complex algorithm.
-          const activities = {
-            vi: {
-              discovery: [
-                {
-                  time: "full_day",
-                  activity: "Khám phá Bà Nà Hills & Cầu Vàng",
-                  unique: true,
-                },
-                {
-                  time: "morning",
-                  activity: "Khám phá Bán đảo Sơn Trà & Chùa Linh Ứng",
-                },
-                {
-                  time: "afternoon",
-                  activity: "Tham quan Ngũ Hành Sơn & Làng đá Non Nước",
-                },
-              ],
-              relax: [
-                {
-                  time: "full_day",
-                  activity:
-                    "Thư giãn tại Công viên suối khoáng nóng Núi Thần Tài",
-                  unique: true,
-                },
-                {
-                  time: "morning",
-                  activity: "Tắm biển Mỹ Khê & tham gia các hoạt động thể thao",
-                },
-                {
-                  time: "afternoon",
-                  activity: "Thư giãn, spa tại resort/khách sạn",
-                },
-                {
-                  time: "evening",
-                  activity: "Dạo biển đêm, thưởng thức hải sản tươi sống",
-                },
-              ],
-              culture: [
-                {
-                  time: "full_day",
-                  activity:
-                    "Tham quan Phố cổ Hội An (di chuyển từ chiều, ăn tối và dạo đêm)",
-                  unique: true,
-                },
-                {
-                  time: "morning",
-                  activity:
-                    "Tham quan Bảo tàng Điêu khắc Chăm & Nhà thờ Con Gà",
-                },
-                {
-                  time: "evening",
-                  activity:
-                    "Dạo đêm sông Hàn, xem Cầu Rồng phun lửa (cuối tuần)",
-                },
-              ],
-            },
-            en: {
-              discovery: [
-                {
-                  time: "full_day",
-                  activity: "Explore Ba Na Hills & Golden Bridge",
-                  unique: true,
-                },
-                {
-                  time: "morning",
-                  activity: "Explore Son Tra Peninsula & Linh Ung Pagoda",
-                },
-                {
-                  time: "afternoon",
-                  activity: "Visit Marble Mountains & Non Nuoc Stone Village",
-                },
-              ],
-              relax: [
-                {
-                  time: "full_day",
-                  activity: "Relax at Than Tai Hot Springs Park",
-                  unique: true,
-                },
-                {
-                  time: "morning",
-                  activity: "Swim at My Khe Beach & enjoy water sports",
-                },
-                {
-                  time: "afternoon",
-                  activity: "Relax, spa at the resort/hotel",
-                },
-                {
-                  time: "evening",
-                  activity: "Walk on the beach at night, enjoy fresh seafood",
-                },
-              ],
-              culture: [
-                {
-                  time: "full_day",
-                  activity:
-                    "Visit Hoi An Ancient Town (go in the afternoon, have dinner, and enjoy the night)",
-                  unique: true,
-                },
-                {
-                  time: "morning",
-                  activity:
-                    "Visit the Cham Sculpture Museum & Da Nang Cathedral",
-                },
-                {
-                  time: "evening",
-                  activity:
-                    "Stroll along the Han River at night, watch the Dragon Bridge (weekends)",
-                },
-              ],
-            },
+        // CƠ SỞ DỮ LIỆU HOẠT ĐỘNG (KHÔNG THAY ĐỔI)
+        const DETAILED_ACTIVITIES_V4 = {
+          bana: {
+            id: "bana",
+            type: "attraction",
+            tags: ["discovery", "family"],
+            duration: 8,
+            time_slot: "full_day",
+            time_vi: "Cả ngày (8:00 - 17:00)",
+            activity_vi: "Khám phá Sun World Bà Nà Hills & Cầu Vàng",
+            description_vi:
+              "Tham quan Cầu Vàng, Làng Pháp, vườn hoa và khu vui chơi Fantasy Park.",
+            tip_vi: "Nên mua vé online và đi sớm để tránh đông đúc.",
+            time_en: "Full Day (8:00 AM - 5:00 PM)",
+            activity_en: "Explore Sun World Ba Na Hills & Golden Bridge",
+            description_en:
+              "Visit the Golden Bridge, French Village, flower gardens, and Fantasy Park.",
+            tip_en: "Buy tickets online and go early to avoid crowds.",
+          },
+          hoian: {
+            id: "hoian",
+            type: "attraction",
+            tags: ["culture", "relax"],
+            duration: 6,
+            time_slot: "afternoon_evening",
+            time_vi: "Chiều - Tối (15:00 - 21:00)",
+            activity_vi: "Dạo chơi Phố cổ Hội An",
+            description_vi:
+              "Khám phá Chùa Cầu, các hội quán. Ăn tối và đi thuyền thả hoa đăng trên sông Hoài.",
+            tip_vi: "Đặc sản phải thử: Cao Lầu, Cơm gà.",
+            time_en: "Afternoon - Evening (3:00 PM - 9:00 PM)",
+            activity_en: "Explore Hoi An Ancient Town",
+            description_en:
+              "Visit the Japanese Bridge, assembly halls. Have dinner and release lanterns on a boat trip.",
+            tip_en: "Must-try dishes: Cao Lau, Chicken Rice.",
+          },
+          nuiThanTai: {
+            id: "nuiThanTai",
+            type: "attraction",
+            tags: ["relax", "family"],
+            duration: 7,
+            time_slot: "full_day",
+            time_vi: "Cả ngày (9:00 - 17:00)",
+            activity_vi: "Thư giãn tại suối khoáng nóng Núi Thần Tài",
+            description_vi:
+              "Tận hưởng tắm khoáng nóng, tắm bùn, Onsen kiểu Nhật và vui chơi tại công viên nước.",
+            tip_vi: "Trải nghiệm luộc trứng trong dòng suối khoáng rất thú vị.",
+            time_en: "Full Day (9:00 AM - 5:00 PM)",
+            activity_en: "Relax at Than Tai Hot Springs Park",
+            description_en:
+              "Enjoy hot mineral baths, mud baths, Japanese-style Onsen, and the water park.",
+            tip_en:
+              "Boiling eggs in the natural hot stream is a fun experience.",
+          },
+          nguHanhSon: {
+            id: "nguHanhSon",
+            type: "attraction",
+            tags: ["discovery", "culture"],
+            duration: 3,
+            time_slot: "morning",
+            time_vi: "Sáng (8:00 - 11:00)",
+            activity_vi: "Tham quan Ngũ Hành Sơn & Làng đá Non Nước",
+            description_vi:
+              "Khám phá các hang động huyền bí và chùa cổ trên ngọn Thủy Sơn.",
+            tip_vi:
+              "Mang giày thể thao thoải mái. Có thang máy để tiết kiệm sức.",
+            time_en: "Morning (8:00 AM - 11:00 AM)",
+            activity_en: "Visit Marble Mountains & Non Nuoc Stone Village",
+            description_en:
+              "Explore mysterious caves and ancient pagodas on Water Mountain.",
+            tip_en:
+              "Wear comfortable sneakers. The elevator can save you energy.",
+          },
+          sonTra: {
+            id: "sonTra",
+            type: "attraction",
+            tags: ["discovery", "nature"],
+            duration: 3.5,
+            time_slot: "morning",
+            time_vi: "Sáng (7:30 - 11:00)",
+            activity_vi: "Khám phá Bán đảo Sơn Trà",
+            description_vi:
+              "Lên chùa Linh Ứng, ghé Đỉnh Bàn Cờ và Cây Đa Ngàn Năm.",
+            tip_vi:
+              "Nên đi xe số hoặc xe tay ga mạnh. Lái xe cẩn thận vì đường dốc.",
+            time_en: "Morning (7:30 AM - 11:00 AM)",
+            activity_en: "Explore Son Tra Peninsula",
+            description_en:
+              "Visit Linh Ung Pagoda, Ban Co Peak, and the Thousand-Year-Old Banyan Tree.",
+            tip_en: "A scooter is recommended. Drive carefully on steep roads.",
+          },
+          myKheBeach: {
+            id: "myKheBeach",
+            type: "attraction",
+            tags: ["relax", "family"],
+            duration: 2.5,
+            time_slot: "afternoon",
+            time_vi: "Chiều (16:00 - 18:30)",
+            activity_vi: "Tắm biển và thư giãn tại Mỹ Khê",
+            description_vi:
+              "Tận hưởng bãi biển cát trắng hoặc tham gia các hoạt động thể thao.",
+            tip_vi: "Buổi chiều là thời điểm đẹp nhất, ít nắng gắt.",
+            time_en: "Afternoon (4:00 PM - 6:30 PM)",
+            activity_en: "Swim and relax at My Khe Beach",
+            description_en:
+              "Enjoy the white sandy beach or participate in water sports.",
+            tip_en: "Late afternoon is the best time, with less harsh sun.",
+          },
+          chamMuseum: {
+            id: "chamMuseum",
+            type: "attraction",
+            tags: ["culture", "history"],
+            duration: 2,
+            time_slot: "morning",
+            time_vi: "Sáng (9:00 - 11:00)",
+            activity_vi: "Tham quan Bảo tàng Điêu khắc Chăm",
+            description_vi:
+              "Khám phá kho báu nghệ thuật của Vương quốc Champa xưa.",
+            tip_vi: "Nên thuê hướng dẫn viên để hiểu sâu hơn về lịch sử.",
+            time_en: "Morning (9:00 AM - 11:00 AM)",
+            activity_en: "Visit the Cham Sculpture Museum",
+            description_en:
+              "Discover the artistic treasures of the ancient Champa Kingdom.",
+            tip_en: "Consider hiring a guide to better understand the history.",
+          },
+          hanRiverCruise: {
+            id: "hanRiverCruise",
+            type: "experience",
+            tags: ["relax", "family"],
+            duration: 1.5,
+            time_slot: "evening",
+            time_vi: "Tối (20:00 - 21:30)",
+            activity_vi: "Du thuyền và ngắm Cầu Rồng phun lửa",
+            description_vi:
+              "Ngắm các cây cầu biểu tượng về đêm và xem trình diễn phun lửa/nước (cuối tuần).",
+            tip_vi: "Đặt vé trước, đặc biệt là vào cuối tuần.",
+            time_en: "Evening (8:00 PM - 9:30 PM)",
+            activity_en: "Cruise on Han River & watch Dragon Bridge show",
+            description_en:
+              "View the iconic bridges at night and watch the fire/water show (weekends).",
+            tip_en: "Book tickets in advance, especially on weekends.",
+          },
+          asiaPark: {
+            id: "asiaPark",
+            type: "attraction",
+            tags: ["family", "discovery"],
+            duration: 3,
+            time_slot: "evening",
+            time_vi: "Tối (18:00 - 21:00)",
+            activity_vi: "Vui chơi tại Công viên Châu Á & Sun Wheel",
+            description_vi:
+              "Trải nghiệm vòng quay Sun Wheel và các trò chơi cảm giác mạnh.",
+            tip_vi: "Kiểm tra lịch hoạt động trước khi đi.",
+            time_en: "Evening (6:00 PM - 9:00 PM)",
+            activity_en: "Have fun at Asia Park & Sun Wheel",
+            description_en: "Experience the Sun Wheel and thrilling games.",
+            tip_en: "Check the operating schedule before you go.",
+          },
+          lunch: {
+            id: "lunch",
+            type: "food",
+            tags: ["foodie", "culture", "relax", "family", "discovery"],
+            time_slot: "afternoon",
+            time_vi: "Bữa trưa",
+            activity_vi: "Thưởng thức ẩm thực địa phương",
+            description_vi:
+              "Gợi ý: Mì Quảng, Bún chả cá, hoặc Bánh tráng cuốn thịt heo.",
+            tip_vi:
+              "Mì Quảng Bà Mua (19 Trần Bình Trọng) là một lựa chọn tuyệt vời.",
+            time_en: "Lunch",
+            activity_en: "Enjoy local cuisine",
+            description_en:
+              "Suggestion: Mi Quang, Fish Cake Noodle Soup, or Pork Rolls.",
+            tip_en: "Mi Quang Ba Mua (19 Tran Binh Trong) is a great choice.",
+          },
+          dinner: {
+            id: "dinner",
+            type: "food",
+            tags: ["foodie", "culture", "relax", "family", "discovery"],
+            time_slot: "evening",
+            time_vi: "Bữa tối",
+            activity_vi: "Khám phá ẩm thực Đà Thành",
+            description_vi:
+              "Gợi ý: Thưởng thức hải sản tươi sống hoặc các món ăn vặt như Bánh xèo, Nem lụi.",
+            tip_vi: "Hải sản Bé Mặn (Võ Nguyên Giáp) rất nổi tiếng.",
+            time_en: "Dinner",
+            activity_en: "Discover Da Nang cuisine",
+            description_en:
+              "Suggestion: Enjoy fresh seafood or street food like Banh Xeo, Nem Lui.",
+            tip_en: "Be Man Seafood (Vo Nguyen Giap) is very famous.",
+          },
+          coffee: {
+            id: "coffee",
+            type: "experience",
+            tags: ["relax"],
+            time_slot: "afternoon",
+            time_vi: "Chiều",
+            activity_vi: "Thư giãn ở quán cà phê",
+            description_vi:
+              "Nghỉ ngơi và tận hưởng cà phê muối hoặc cà phê dừa đặc sản.",
+            tip_vi:
+              "43 Factory Coffee Roaster có không gian và chất lượng rất tốt.",
+            time_en: "Afternoon",
+            activity_en: "Relax at a coffee shop",
+            description_en:
+              "Take a break and enjoy specialty salt coffee or coconut coffee.",
+            tip_en:
+              "43 Factory Coffee Roaster has a great ambiance and quality.",
+          },
+        };
+
+        /**
+         * Thuật toán tạo lịch trình chi tiết và chuyên biệt hóa (ĐÃ SỬA LỖI & TỐI ƯU).
+         * @param {number} days - Số ngày đi.
+         * @param {Array<string>} styles - Mảng chứa một phong cách du lịch.
+         * @returns {Array<Array<Object>>} - Lịch trình hoàn chỉnh.
+         */
+        const generateDetailedItineraryV4 = (days, styles) => {
+          if (styles.length === 0) return [];
+          const selectedStyle = styles[0];
+
+          const CORE_ACTIVITIES = {
+            discovery: ["bana", "sonTra", "nguHanhSon"],
+            relax: ["nuiThanTai", "myKheBeach", "hanRiverCruise"],
+            culture: ["hoian", "chamMuseum", "nguHanhSon"],
           };
 
-          let availableActivities = [];
-          styles.forEach((style) => {
-            availableActivities.push(...activities[lang][style]);
-          });
+          const FILLER_ACTIVITIES = {
+            discovery: ["asiaPark", "myKheBeach"],
+            relax: ["asiaPark", "coffee"],
+            culture: ["sonTra"],
+          };
 
-          // Remove duplicates
-          availableActivities = availableActivities.filter(
-            (activity, index, self) =>
-              index === self.findIndex((a) => a.activity === activity.activity)
-          );
+          let plan = [];
+          let usedMajorActivities = new Set();
+          const allActivities = DETAILED_ACTIVITIES_V4;
+          const shuffle = (array) => [...array].sort(() => 0.5 - Math.random());
 
-          let schedule = Array.from({ length: days }, () => ({
-            morning: "...",
-            afternoon: "...",
-            evening: "...",
-          }));
-          let usedActivities = new Set();
+          let corePool = shuffle(CORE_ACTIVITIES[selectedStyle] || []);
+          let fillerPool = shuffle(FILLER_ACTIVITIES[selectedStyle] || []);
 
-          // Prioritize full day activities
-          let fullDaySlots = days;
-          const fullDayActivities = availableActivities.filter(
-            (a) => a.time === "full_day"
-          );
-          for (const activity of fullDayActivities) {
-            if (fullDaySlots > 0) {
-              const dayIndex = schedule.findIndex((d) => d.morning === "...");
-              if (dayIndex !== -1) {
-                schedule[dayIndex] = {
-                  morning: activity.activity,
-                  afternoon: " ",
-                  evening: "...",
+          for (let i = 0; i < days; i++) {
+            let dayPlan = { morning: null, afternoon: null, evening: null };
+
+            let fullDayActivityId = corePool.find(
+              (id) =>
+                allActivities[id]?.time_slot === "full_day" &&
+                !usedMajorActivities.has(id)
+            );
+            if (fullDayActivityId) {
+              const activity = allActivities[fullDayActivityId];
+              dayPlan.morning = activity;
+              dayPlan.afternoon = {
+                ...activity,
+                id: `${activity.id}_cont`,
+                time_vi: "Chiều",
+                time_en: "Afternoon",
+                activity_vi: "Tiếp tục tham quan & ăn trưa",
+                activity_en: "Continue exploring & lunch",
+                description_vi: "",
+                tip_vi: "",
+              };
+              dayPlan.evening = allActivities.dinner;
+              usedMajorActivities.add(fullDayActivityId);
+              corePool = corePool.filter((id) => id !== fullDayActivityId);
+              plan.push(dayPlan);
+              continue;
+            }
+
+            let morningActivityId = corePool.shift() || fillerPool.shift();
+            if (
+              morningActivityId &&
+              !usedMajorActivities.has(morningActivityId)
+            ) {
+              dayPlan.morning = allActivities[morningActivityId];
+              usedMajorActivities.add(morningActivityId);
+            }
+
+            let afternoonActivityId = corePool.shift() || fillerPool.shift();
+            if (
+              afternoonActivityId &&
+              !usedMajorActivities.has(afternoonActivityId)
+            ) {
+              const activity = allActivities[afternoonActivityId];
+              if (activity.time_slot === "afternoon_evening") {
+                dayPlan.afternoon = activity;
+                dayPlan.evening = {
+                  ...activity,
+                  id: `${activity.id}_cont`,
+                  time_vi: "Tối",
+                  time_en: "Evening",
+                  activity_vi: "Ăn tối & Thả hoa đăng",
+                  activity_en: "Dinner & Lantern release",
+                  description_vi:
+                    "Thưởng thức đặc sản và không khí huyền ảo về đêm.",
+                  tip_vi: "Đi thuyền trên sông Hoài là trải nghiệm đáng nhớ.",
                 };
-                usedActivities.add(activity.activity);
-                fullDaySlots--;
+                usedMajorActivities.add(afternoonActivityId);
+              } else if (!dayPlan.afternoon) {
+                dayPlan.afternoon = activity;
+                usedMajorActivities.add(afternoonActivityId);
               }
             }
-          }
 
-          const timeSlots = ["morning", "afternoon", "evening"];
-          for (let day = 0; day < days; day++) {
-            for (const slot of timeSlots) {
-              if (schedule[day][slot] === "...") {
-                const activity = availableActivities.find(
-                  (a) =>
-                    (a.time === slot || a.time === "half_day") &&
-                    !usedActivities.has(a.activity)
-                );
-                if (activity) {
-                  schedule[day][slot] = activity.activity;
-                  usedActivities.add(activity.activity);
-                } else {
-                  schedule[day][slot] =
-                    lang === "vi"
-                      ? "Tự do khám phá ẩm thực"
-                      : "Free time for culinary exploration";
-                }
+            // Lấp đầy các chỗ trống còn lại một cách thông minh
+            if (!dayPlan.morning) {
+              const fallbackMorning =
+                allActivities.chamMuseum.tags.includes(selectedStyle) &&
+                !usedMajorActivities.has("chamMuseum")
+                  ? allActivities.chamMuseum
+                  : allActivities.coffee;
+              if (!usedMajorActivities.has(fallbackMorning.id)) {
+                dayPlan.morning = fallbackMorning;
+                usedMajorActivities.add(fallbackMorning.id);
               }
             }
+            if (!dayPlan.afternoon) {
+              dayPlan.afternoon = allActivities.lunch;
+            }
+            if (!dayPlan.evening) {
+              const fallbackEvening =
+                selectedStyle === "relax" &&
+                !usedMajorActivities.has("hanRiverCruise")
+                  ? allActivities.hanRiverCruise
+                  : allActivities.dinner;
+              if (!usedMajorActivities.has(fallbackEvening.id)) {
+                dayPlan.evening = fallbackEvening;
+                usedMajorActivities.add(fallbackEvening.id);
+              } else {
+                dayPlan.evening = allActivities.dinner;
+              }
+            }
+
+            plan.push(dayPlan);
           }
 
-          return schedule;
+          return plan.map((day) => Object.values(day).filter(Boolean));
         };
-
         // --- CONTACT MODAL LOGIC ---
         const contactModal = document.getElementById("contact-modal");
         const openContactBtn = document.getElementById(
@@ -3004,7 +3231,7 @@
 
         farewellObserver.observe(document.getElementById("farewell"));
         window.addEventListener("resize", resizeCanvas);
-        // Xóa toàn bộ logic music player cũ và thay bằng đoạn mã này
+
         // --- MUSIC PLAYER LOGIC V7 (COMPACT & STABLE) ---
         const musicPlayerContainer = document.getElementById("music-player");
         const playPauseBtn = document.getElementById("play-pause-btn");
@@ -3136,6 +3363,9 @@
         // Khởi tạo
         loadTrack(0, false);
         updateLoop();
+
+        // --- KẾT THÚC TRÌNH PHÁT NHẠC ---
+
         // --- BẢN ĐỒ TƯƠNG TÁC (MAPBOX) ---
         const mapLocations = [
           // Lấy tọa độ gần đúng cho các địa điểm
