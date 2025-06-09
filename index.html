@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DanaSoul - Chạm Vào Vẻ Đẹp Đà Nẵng</title>
     <link rel="icon" type="image/png" href="DanaSoulLogo.png" />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
@@ -19,6 +24,122 @@
     />
 
     <style>
+      /* --- Kiểu cho Bản đồ Tương tác --- */
+      #map-section {
+        position: relative;
+        background-color: var(--bg-dark);
+      }
+
+      #map-container {
+        position: relative;
+        width: 100%;
+        height: 600px;
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 2px solid var(--brand-secondary);
+      }
+
+      /* Tìm và thay thế style này trong thẻ <style> của bạn */
+
+      .mapboxgl-popup-content {
+        background-color: rgba(18, 30, 23, 0.9) !important;
+        backdrop-filter: blur(5px);
+        color: var(--text-light) !important;
+        border-radius: 8px !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4) !important;
+        font-family: "Be Vietnam Pro", sans-serif !important;
+        max-width: 280px !important; /* Tăng chiều rộng để vừa ảnh */
+        border: 1px solid var(--brand-secondary);
+        padding: 0 !important; /* XÓA: Bỏ padding để ảnh tràn viền */
+        overflow: hidden; /* Đảm bảo ảnh được bo góc */
+      }
+      .mapboxgl-popup-close-button {
+        color: var(--text-light) !important;
+        font-size: 20px;
+      }
+      .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+        border-top-color: var(--brand-secondary) !important;
+      }
+      .mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+        border-bottom-color: var(--brand-secondary) !important;
+      }
+      .mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+        border-right-color: var(--brand-secondary) !important;
+      }
+      .mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+        border-left-color: var(--brand-secondary) !important;
+      }
+      .custom-marker {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: var(--brand-primary);
+        border: 2px solid var(--text-light);
+        cursor: pointer;
+        box-shadow: 0 0 10px var(--brand-primary);
+        transition: transform 0.2s ease, background-color 0.3s ease; /* Thêm transition */
+      }
+      .custom-marker:hover {
+        transform: scale(1.2);
+      }
+      /* MỚI: Hiệu ứng "thở" cho marker đang được chọn */
+      @keyframes pulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(138, 176, 151, 0.7);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(138, 176, 151, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(138, 176, 151, 0);
+        }
+      }
+      .custom-marker.active {
+        background-color: #fff; /* Nổi bật hơn */
+        transform: scale(1.2);
+        animation: pulse 1.5s infinite; /* Áp dụng hiệu ứng */
+      }
+      .custom-marker {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: var(--brand-primary);
+        border: 2px solid var(--text-light);
+        cursor: pointer;
+        box-shadow: 0 0 10px var(--brand-primary);
+        transition: transform 0.2s ease;
+      }
+      .custom-marker:hover {
+        transform: scale(1.2);
+      }
+      .custom-marker.active {
+        background-color: #fff;
+        box-shadow: 0 0 20px #fff;
+      }
+      .mapboxgl-ctrl-attrib {
+        display: none; /* Tùy chọn: ẩn thông tin bản quyền của Mapbox để giao diện gọn hơn */
+      }
+      #map-locations-list {
+        background-color: var(--bg-medium);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+      #map-locations-list .location-item {
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.3s, color 0.3s;
+        border-left: 4px solid transparent;
+      }
+      #map-locations-list .location-item:hover,
+      #map-locations-list .location-item.active {
+        background-color: var(--bg-dark);
+        color: var(--brand-primary);
+        border-left-color: var(--brand-primary);
+        font-weight: 600;
+      }
       :root {
         --brand-primary: #8ab097; /* Light Green for accents */
         --brand-secondary: #3a5f4b; /* Medium Green for buttons/hovers */
@@ -288,28 +409,10 @@
         color: var(--bg-dark);
         font-weight: 700;
       }
-      #music-player {
-        position: fixed;
-        bottom: 1.5rem;
-        left: 1.5rem;
-        z-index: 100;
-        transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-      }
-      #music-player-controls {
-        width: 0;
-        opacity: 0;
-        visibility: hidden;
-        transition: width 0.4s, opacity 0.2s, visibility 0.4s;
-      }
-      #music-player:hover #music-player-controls {
-        width: 200px;
-        opacity: 1;
-        visibility: visible;
-        transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s 0.2s,
-          visibility 0s;
-      }
+
       input[type="range"] {
         -webkit-appearance: none;
+        appearance: none;
         background: transparent;
       }
       input[type="range"]::-webkit-slider-thumb {
@@ -350,6 +453,40 @@
         width: 100%;
         height: 100%;
         z-index: 15; /* Above background image and overlay, below text */
+      }
+      /* --- Music Player V7 Styles --- */
+      #play-pause-btn {
+        /* Hiệu ứng thở sẽ được điều khiển bằng JS thông qua box-shadow */
+        transition: box-shadow 0.2s linear, background-color 0.3s ease;
+      }
+
+      /* Tùy chỉnh thanh trượt âm lượng */
+      input[type="range"].volume-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 4px;
+        background: var(--brand-secondary);
+        border-radius: 5px;
+        outline: none;
+        transition: opacity 0.2s;
+      }
+      input[type="range"].volume-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 14px;
+        height: 14px;
+        background: var(--brand-primary);
+        cursor: pointer;
+        border-radius: 50%;
+      }
+
+      input[type="range"].volume-slider::-moz-range-thumb {
+        width: 14px;
+        height: 14px;
+        background: var(--brand-primary);
+        cursor: pointer;
+        border-radius: 50%;
       }
     </style>
   </head>
@@ -594,6 +731,33 @@
             id="destinations-grid"
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
           ></div>
+        </div>
+      </section>
+
+      <section id="map-section" class="py-24 bg-[var(--bg-dark)]">
+        <div class="container mx-auto px-6 fade-in-section">
+          <h2
+            class="text-3xl md:text-4xl font-bold text-white mb-4 text-center"
+            data-lang-key="map.title"
+          >
+            Bản Đồ Trực Quan
+          </h2>
+          <p
+            class="text-[var(--text-dark)] max-w-3xl mx-auto mb-12 text-center"
+            data-lang-key="map.desc"
+          >
+            Khám phá vị trí các điểm đến mang tính biểu tượng của Đà Nẵng. Nhấn
+            vào một điểm trên bản đồ hoặc trong danh sách để xem chi tiết.
+          </p>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+              <div id="map-container"></div>
+            </div>
+            <div class="lg:col-span-1">
+              <div id="map-locations-list"></div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -953,40 +1117,6 @@
         class="absolute inset-0 -z-10"
         aria-label="Close modal"
       ></button>
-    </div>
-
-    <div
-      id="music-player"
-      class="flex items-center bg-[var(--bg-medium)] bg-opacity-80 backdrop-blur-sm rounded-full shadow-lg p-2"
-    >
-      <button
-        id="play-pause-btn"
-        class="p-2 text-white hover:text-[var(--brand-primary)] transition-colors"
-      >
-        <i data-lucide="play" id="play-icon" class="w-6 h-6"></i>
-        <i data-lucide="pause" id="pause-icon" class="w-6 h-6 hidden"></i>
-      </button>
-      <div
-        id="music-player-controls"
-        class="flex items-center space-x-3 overflow-hidden"
-      >
-        <button
-          id="next-track-btn"
-          class="p-2 text-white hover:text-[var(--brand-primary)] transition-colors"
-        >
-          <i data-lucide="skip-forward" class="w-5 h-5"></i>
-        </button>
-        <i data-lucide="volume-2" class="w-5 h-5 text-gray-400"></i>
-        <input
-          type="range"
-          id="volume-slider"
-          min="0"
-          max="1"
-          step="0.01"
-          value="0.5"
-          class="w-20 h-1 accent-[var(--brand-primary)]"
-        />
-      </div>
     </div>
 
     <script>
@@ -1586,7 +1716,7 @@
                 id: "cau-vang",
                 title: "Golden Bridge",
                 category: "architecture",
-                image: "images/Diem den/cau_vang.png",
+                image: "images/Diem den/ENG/golden_bridge.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "A masterpiece of architecture amidst the clouds of Ba Na.",
                 fullDesc:
@@ -1599,7 +1729,7 @@
                 id: "cau-rong",
                 title: "Dragon Bridge",
                 category: "architecture",
-                image: "images/Diem den/cau_rong.png",
+                image: "images/Diem den/ENG/dragon_bridge.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "A symbol of Da Nang with a fire and water breathing show.",
                 fullDesc:
@@ -1612,7 +1742,7 @@
                 id: "ba-na-hills",
                 title: "Ba Na Hills",
                 category: "nature",
-                image: "images/Diem den/ba_na_hills.png",
+                image: "images/Diem den/ENG/ba_na_hills.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc: "A 'miniature Europe' on the peak of Chua Mountain.",
                 fullDesc:
                   "Located on the peak of Chua Mountain at an altitude of 1,487m, Ba Na Hills is a leading resort complex in Vietnam. It boasts a year-round cool climate, likened to a 'Da Lat of the Central Region'. Visitors can experience four seasons in one day and admire unique architectural works such as the French Village, Debay Wine Cellar, Le Jardin D'Amour Flower Garden, and the Golden Bridge.",
@@ -1624,7 +1754,7 @@
                 id: "my-khe",
                 title: "My Khe Beach",
                 category: "nature",
-                image: "images/Diem den/bai_bien_my_khe.png",
+                image: "images/Diem den/ENG/my_khe_beach.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc: "One of the most charming beaches on the planet.",
                 fullDesc:
                   "With a long coastline, fine white sand, and warm, clear blue water, My Khe is an ideal destination for beach relaxation and sports. The beach is fringed with poetic coconut trees and has gentle waves, making it very safe for both children and adults.",
@@ -1636,7 +1766,7 @@
                 id: "ngu-hanh-son",
                 title: "Marble Mountains",
                 category: "nature",
-                image: "images/Diem den/ngu_hanh_son.png",
+                image: "images/Diem den/ENG/marble_mountains.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "A cluster of 5 limestone mountains with a mysterious spiritual beauty.",
                 fullDesc:
@@ -1649,7 +1779,7 @@
                 id: "sun-wheel",
                 title: "Sun Wheel",
                 category: "architecture",
-                image: "images/Diem den/sun_wheel.png",
+                image: "images/Diem den/ENG/sun_wheel.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "Experience a panoramic view of Da Nang from a height of 115m.",
                 fullDesc:
@@ -1662,7 +1792,7 @@
                 id: "ban-dao-son-tra",
                 title: "Son Tra Peninsula",
                 category: "nature",
-                image: "images/Diem den/ban_dao_son_tra.png",
+                image: "images/Diem den/ENG/son_tra_peninsula.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "The 'green lung' of the city and home to the Red-shanked Douc.",
                 fullDesc:
@@ -1675,7 +1805,7 @@
                 id: "chua-linh-ung",
                 title: "Linh Ung Pagoda",
                 category: "culture",
-                image: "images/Diem den/chua_linh_ung.png",
+                image: "images/Diem den/ENG/linh_ung_pagoda.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "The pagoda on Son Tra Peninsula with the tallest Lady Buddha statue in Vietnam.",
                 fullDesc:
@@ -1688,7 +1818,7 @@
                 id: "hoi-an",
                 title: "Hoi An Ancient Town",
                 category: "culture",
-                image: "images/Diem den/pho_co_hoi_an.png",
+                image: "images/Diem den/ENG/hoi_an_ancient_town.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "A World Cultural Heritage site with timeless beauty.",
                 fullDesc:
@@ -1701,7 +1831,7 @@
                 id: "nui-than-tai",
                 title: "Than Tai Mountain Park",
                 category: "nature",
-                image: "images/Diem den/nui_than_tai.png",
+                image: "images/Diem den/ENG/nui_than_tai_hot_spring_park.png", // <-- ĐÃ CẬP NHẬT
                 shortDesc:
                   "An eco-tourism resort combined with hot spring bathing.",
                 fullDesc:
@@ -1994,7 +2124,7 @@
         initHeroSlideshow();
 
         // --- BỘ CHUYỂN NGÔN NGỮ ---
-        const switchLanguage = (lang, force = false) => {
+        let switchLanguage = (lang, force = false) => {
           if (lang === currentLanguage && !force) return;
           currentLanguage = lang;
           document.documentElement.lang = lang;
@@ -2874,13 +3004,15 @@
 
         farewellObserver.observe(document.getElementById("farewell"));
         window.addEventListener("resize", resizeCanvas);
-
-        // --- REVISED MUSIC PLAYER LOGIC ---
+        // Xóa toàn bộ logic music player cũ và thay bằng đoạn mã này
+        // --- MUSIC PLAYER LOGIC V7 (COMPACT & STABLE) ---
+        const musicPlayerContainer = document.getElementById("music-player");
         const playPauseBtn = document.getElementById("play-pause-btn");
         const nextTrackBtn = document.getElementById("next-track-btn");
         const volumeSlider = document.getElementById("volume-slider");
         const playIcon = document.getElementById("play-icon");
         const pauseIcon = document.getElementById("pause-icon");
+        // XÓA: Bỏ các biến không cần thiết như trackTitle, progressBar...
 
         const playlist = [
           { title: "Hello Viet Nam", path: "music/xin_chao_viet_nam.mp3" },
@@ -2895,90 +3027,315 @@
         ];
 
         let currentTrackIndex = 0;
-        let musicPlayer = null;
-        let isPlaying = false;
+        let player;
+        let meter; // Để đo cường độ âm thanh cho hiệu ứng thở
+        let isPlayerReady = false;
 
-        const setPlayingState = (playing) => {
-          isPlaying = playing;
+        // Cập nhật giao diện (chỉ icon)
+        const updateUI = (state) => {
+          const isPlaying = state === "started";
           playIcon.classList.toggle("hidden", isPlaying);
           pauseIcon.classList.toggle("hidden", !isPlaying);
         };
 
-        const playNextTrack = () => {
-          currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-          loadTrack(currentTrackIndex, true);
-        };
+        // Tải bài hát (phiên bản ổn định)
+        const loadTrack = (trackIndex, shouldPlay) => {
+          isPlayerReady = false;
 
-        const loadTrack = (trackIndex, shouldPlay = false) => {
-          if (musicPlayer) {
-            musicPlayer.stop();
-            musicPlayer.dispose();
+          if (player) {
+            // Dừng và giải phóng tài nguyên một cách an toàn
+            player.stop();
+            Tone.Transport.stop();
+            player.unsync();
+            player.dispose();
           }
-          currentTrackIndex = trackIndex;
-          const track = playlist[currentTrackIndex];
+          if (meter) {
+            meter.dispose();
+          }
 
-          musicPlayer = new Tone.Player({
-            url: track.path,
+          currentTrackIndex = trackIndex;
+
+          player = new Tone.Player({
+            url: playlist[trackIndex].path,
             loop: false,
-            autostart: false,
-            onstop: () => {
-              // This will be called when the track naturally ends
-              // We only auto-play next if it was playing and not manually stopped
-              if (isPlaying) {
-                playNextTrack();
+            volume: Tone.gainToDb(volumeSlider.value), // Đặt âm lượng ban đầu
+            onload: () => {
+              isPlayerReady = true;
+              if (shouldPlay) {
+                Tone.Transport.start();
               }
+              // SỬA LỖI: Cập nhật UI ngay khi transport thay đổi trạng thái
+              // Điều này đảm bảo icon luôn đúng sau khi nhấn Next
+              updateUI(Tone.Transport.state);
             },
           }).toDestination();
 
-          musicPlayer.volume.value = Tone.gainToDb(volumeSlider.value);
+          meter = new Tone.Meter();
+          player.connect(meter);
+          player.sync().start(0);
+        };
 
-          // Chain the start to the buffer load event
-          Tone.loaded().then(() => {
-            if (shouldPlay) {
-              musicPlayer.start();
-              setPlayingState(true);
-            } else {
-              setPlayingState(false);
+        // Chơi bài tiếp theo
+        const playNextTrack = () => {
+          const wasPlaying = Tone.Transport.state === "started";
+          const nextIndex = (currentTrackIndex + 1) % playlist.length;
+          loadTrack(nextIndex, wasPlaying || true); // Luôn phát nhạc khi nhấn Next
+        };
+
+        // Sự kiện cho nút Play/Pause
+        playPauseBtn.addEventListener("click", async () => {
+          if (Tone.context.state !== "running") await Tone.start();
+          if (!isPlayerReady) return;
+
+          if (Tone.Transport.state === "started") {
+            Tone.Transport.pause();
+          } else {
+            Tone.Transport.start();
+          }
+          updateUI(Tone.Transport.state);
+        });
+
+        // Sự kiện nút Next
+        nextTrackBtn.addEventListener("click", () => {
+          if (!isPlayerReady) return;
+          playNextTrack();
+        });
+
+        // Sự kiện cho thanh Volume
+        volumeSlider.addEventListener("input", (e) => {
+          if (player) {
+            player.volume.value = Tone.gainToDb(e.target.value);
+          }
+        });
+
+        // Vòng lặp cập nhật hiệu ứng
+        function updateLoop() {
+          requestAnimationFrame(updateLoop);
+          if (!isPlayerReady) return;
+
+          if (Tone.Transport.state === "started") {
+            // Hiệu ứng "thở" bằng box-shadow
+            const level = Tone.dbToGain(meter.getValue()); // Chuyển đổi dB sang thang 0-1
+            const breathSize = level * 12 + 4; // Điều chỉnh độ nhạy của hiệu ứng (tăng số 12 để mạnh hơn)
+            const breathOpacity = level * 0.5 + 0.2; // Độ mờ của hiệu ứng
+            playPauseBtn.style.boxShadow = `0 0 ${breathSize}px rgba(138, 176, 151, ${breathOpacity})`;
+          } else {
+            playPauseBtn.style.boxShadow = "none"; // Tắt hiệu ứng khi dừng
+          }
+        }
+
+        // Tự động chuyển bài KHI NÓ KẾT THÚC (chỉ một lần duy nhất)
+        Tone.Transport.on("stop", () => {
+          updateUI("stopped");
+          // Chỉ tự động chuyển bài khi nó kết thúc tự nhiên
+          if (player && player.loaded && Tone.Transport.progress > 0.99) {
+            setTimeout(playNextTrack, 150);
+          }
+        });
+
+        // Khởi tạo
+        loadTrack(0, false);
+        updateLoop();
+        // --- BẢN ĐỒ TƯƠNG TÁC (MAPBOX) ---
+        const mapLocations = [
+          // Lấy tọa độ gần đúng cho các địa điểm
+          { id: "cau-vang", coords: [107.9946, 15.9961], zoom: 14 },
+          { id: "cau-rong", coords: [108.2269, 16.0614], zoom: 15 },
+          { id: "ba-na-hills", coords: [107.9991, 15.9954], zoom: 13 },
+          { id: "my-khe", coords: [108.2494, 16.0559], zoom: 14 },
+          { id: "ngu-hanh-son", coords: [108.2631, 16.0051], zoom: 15 },
+          { id: "sun-wheel", coords: [108.2185, 16.0408], zoom: 16 },
+          { id: "ban-dao-son-tra", coords: [108.3039, 16.1159], zoom: 12 },
+          { id: "chua-linh-ung", coords: [108.2936, 16.1009], zoom: 15 },
+          { id: "hoi-an", coords: [108.329, 15.8801], zoom: 14 },
+          { id: "nui-than-tai", coords: [108.053, 16.0125], zoom: 14 },
+        ];
+
+        let map = null;
+        let markers = [];
+        let activePopup = null; // MỚI: Di chuyển biến ra đây
+
+        const initMap = () => {
+          // BẠN CẦN CUNG CẤP API KEY CỦA MÌNH TẠI ĐÂY
+          mapboxgl.accessToken =
+            "pk.eyJ1IjoiY3VxdWFuYmFsYTEyMyIsImEiOiJjbWJwNXB5ODkwMTBjMmxxMnkyMDJvMmp3In0.tyApat-yhPZrf3SsdvMEFw";
+          map = new mapboxgl.Map({
+            container: "map-container",
+            style: "mapbox://styles/mapbox/dark-v11", // Phong cách nền tối từ Mapbox
+            center: [108.2208, 16.0678], // Trung tâm Đà Nẵng
+            zoom: 11.5,
+          });
+
+          map.on("load", renderMapContent);
+        };
+
+        // Thay thế TOÀN BỘ hàm renderMapContent cũ của bạn bằng hàm này
+
+        const renderMapContent = () => {
+          // MỚI: Luôn đóng popup đang mở trước khi vẽ lại bất cứ thứ gì
+          if (activePopup) {
+            activePopup.remove();
+            activePopup = null;
+          }
+
+          // Xóa các marker cũ nếu có
+          markers.forEach((marker) => marker.remove());
+          markers = [];
+
+          const lang = currentLanguage;
+          const destinations = data[lang].destinations;
+          const listContainer = document.getElementById("map-locations-list");
+          listContainer.innerHTML = "";
+
+          // XÓA: Dòng "let activePopup = null;" ở đây đã được xóa đi
+
+          mapLocations.forEach((loc) => {
+            const destInfo = destinations.find((d) => d.id === loc.id);
+            if (!destInfo) return;
+
+            const el = document.createElement("div");
+            el.className = "custom-marker";
+            el.dataset.id = loc.id;
+
+            const listItem = document.createElement("div");
+            listItem.className = "location-item";
+            listItem.textContent = destInfo.title; // Tiêu đề danh sách được dịch
+            listItem.dataset.id = loc.id;
+            listContainer.appendChild(listItem);
+
+            const flyToLocation = () => {
+              if (activePopup) {
+                activePopup.remove();
+                activePopup = null;
+              }
+              document
+                .querySelectorAll(".custom-marker, .location-item")
+                .forEach((item) => item.classList.remove("active"));
+
+              map.flyTo({
+                center: loc.coords,
+                zoom: loc.zoom,
+                essential: true,
+                speed: 1.2,
+              });
+
+              setTimeout(() => {
+                // Nội dung popup giờ sẽ lấy từ dữ liệu đã được dịch
+                const popupContent = `
+          <div>
+            <img src="${destInfo.image}" alt="${destInfo.title}" style="width: 100%; height: 140px; object-fit: cover;">
+            <div style="padding: 15px;">
+              <h4 style="font-weight: 700; color: var(--brand-primary); margin-bottom: 5px;">${destInfo.title}</h4>
+              <p style="font-size: 13px; line-height: 1.4;">${destInfo.shortDesc}</p>
+            </div>
+          </div>
+        `;
+                activePopup = new mapboxgl.Popup({
+                  offset: 30,
+                  closeOnClick: false,
+                })
+                  .setLngLat(loc.coords)
+                  .setHTML(popupContent)
+                  .addTo(map);
+
+                activePopup.on("close", () => {
+                  el.classList.remove("active");
+                  listItem.classList.remove("active");
+                  activePopup = null;
+                });
+              }, 300);
+
+              el.classList.add("active");
+              listItem.classList.add("active");
+            };
+
+            const marker = new mapboxgl.Marker(el)
+              .setLngLat(loc.coords)
+              .addTo(map);
+            markers.push(marker);
+
+            el.addEventListener("click", (e) => {
+              e.stopPropagation();
+              flyToLocation();
+            });
+            listItem.addEventListener("click", flyToLocation);
+          });
+
+          map.on("click", () => {
+            if (activePopup) {
+              activePopup.remove();
+              activePopup = null;
+              document
+                .querySelectorAll(".custom-marker, .location-item")
+                .forEach((item) => item.classList.remove("active"));
             }
           });
         };
 
-        playPauseBtn.addEventListener("click", async () => {
-          // Must be started by a user gesture
-          if (Tone.context.state !== "running") {
-            await Tone.start();
-          }
+        // Thêm các key ngôn ngữ mới cho phần bản đồ
+        languageContent.vi.map = {
+          title: "Bản Đồ Trực Quan",
+          desc: "Khám phá vị trí các điểm đến mang tính biểu tượng của Đà Nẵng. Nhấn vào một điểm trên bản đồ hoặc trong danh sách để xem chi tiết.",
+        };
+        languageContent.en.map = {
+          title: "Interactive Map",
+          desc: "Explore the locations of Da Nang's iconic destinations. Click on a point on the map or in the list to see details.",
+        };
 
-          if (!musicPlayer) {
-            // First play
-            loadTrack(currentTrackIndex, true);
-          } else {
-            if (isPlaying) {
-              musicPlayer.pause();
-              setPlayingState(false);
-            } else {
-              musicPlayer.start();
-              setPlayingState(true);
-            }
-          }
-        });
+        // Khởi tạo bản đồ
+        initMap();
 
-        nextTrackBtn.addEventListener("click", async () => {
-          if (Tone.context.state !== "running") {
-            await Tone.start();
+        // Ghi đè hàm switchLanguage để render lại nội dung bản đồ khi đổi ngôn ngữ
+        const originalSwitchLanguage = switchLanguage;
+        switchLanguage = (lang, force = false) => {
+          originalSwitchLanguage(lang, force);
+          if (map && map.loaded()) {
+            renderMapContent();
           }
-          playNextTrack();
-        });
-
-        volumeSlider.addEventListener("input", (e) => {
-          if (musicPlayer) {
-            musicPlayer.volume.value = Tone.gainToDb(e.target.value);
-          }
-        });
+        };
 
         // --- GỌI HÀM KHỞI TẠO ---
         switchLanguage("vi", true); // Mặc định là tiếng Việt, ép buộc chạy lần đầu
       });
     </script>
+    <div id="music-player" class="fixed bottom-6 left-6 z-[100]">
+      <div id="player-wrapper" class="relative flex items-center h-14 group">
+        <button
+          id="play-pause-btn"
+          class="relative flex-shrink-0 w-14 h-14 flex items-center justify-center text-white bg-[var(--brand-secondary)] hover:bg-[var(--brand-primary)] rounded-full transition-all duration-300 shadow-lg z-10"
+        >
+          <i data-lucide="play" id="play-icon" class="w-7 h-7 ml-1"></i>
+          <i data-lucide="pause" id="pause-icon" class="w-7 h-7 hidden"></i>
+        </button>
+
+        <div
+          id="player-controls"
+          class="absolute left-10 h-14 flex items-center bg-[var(--bg-medium)] bg-opacity-90 backdrop-blur-sm rounded-r-full shadow-lg pl-8 pr-4 space-x-2 transition-all duration-300 ease-in-out opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto w-0 group-hover:w-48"
+        >
+          <button
+            id="next-track-btn"
+            class="p-2 text-white hover:text-[var(--brand-primary)] transition-colors"
+          >
+            <i data-lucide="skip-forward" class="w-5 h-5"></i>
+          </button>
+
+          <div class="flex items-center space-x-2 flex-grow">
+            <i
+              data-lucide="volume-2"
+              class="w-5 h-5 text-gray-300 flex-shrink-0"
+            ></i>
+            <input
+              type="range"
+              id="volume-slider"
+              min="0"
+              max="1"
+              step="0.01"
+              value="0.5"
+              class="w-full"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
