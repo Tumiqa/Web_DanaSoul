@@ -497,6 +497,220 @@
         border-radius: 50%;
         border: 2px solid var(--brand-secondary);
       }
+      /* =========================================================== */
+      /* BẮT ĐẦU: CSS CHO LA BÀN VĂN HÓA (CULTURE COMPASS)       */
+      /* =========================================================== */
+      .compass-point {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+      .compass-point:hover {
+        transform: translate(-50%, -50%) scale(1.1);
+      }
+      .compass-point .icon-wrapper {
+        width: 80px;
+        height: 80px;
+        background-color: var(--bg-medium);
+        border: 2px solid var(--brand-secondary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+      }
+      .compass-point:hover .icon-wrapper {
+        background-color: var(--brand-primary);
+        border-color: var(--text-light);
+      }
+      .compass-point .icon-wrapper svg {
+        width: 40px;
+        height: 40px;
+        color: var(--brand-primary);
+        transition: color 0.3s ease;
+      }
+      .compass-point:hover .icon-wrapper svg {
+        color: var(--bg-dark);
+      }
+      .compass-point .point-label {
+        margin-top: 12px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .sub-item-container {
+        position: absolute;
+        inset: 0;
+        pointer-events: none; /* Quan trọng */
+      }
+      .sub-item {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.4s ease, transform 0.4s ease;
+        pointer-events: auto; /* Kích hoạt lại pointer-events cho mục con */
+      }
+      .sub-item .sub-item-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background-size: cover;
+        background-position: center;
+        border: 2px solid var(--brand-secondary);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        transition: all 0.3s ease;
+      }
+      .sub-item:hover .sub-item-icon {
+        transform: scale(1.15);
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 20px var(--brand-primary);
+      }
+      .sub-item .sub-item-tooltip {
+        position: absolute;
+        bottom: 110%;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+        border: 1px solid var(--brand-secondary);
+      }
+      .sub-item:hover .sub-item-tooltip {
+        opacity: 1;
+      }
+
+      /* --- CSS cho phần hiển thị nội dung chi tiết --- */
+      #culture-content-display.visible {
+        opacity: 1;
+        pointer-events: auto;
+        transform: scale(1);
+      }
+      #culture-compass.hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: scale(0.9);
+      }
+      .culture-content-card {
+        background-color: var(--bg-medium);
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 900px;
+        margin: auto;
+        height: 100%;
+        overflow-y: auto;
+        border: 1px solid var(--brand-secondary);
+        display: flex;
+        gap: 2rem;
+      }
+      @media (max-width: 768px) {
+        .culture-content-card {
+          flex-direction: column;
+          padding: 1.5rem;
+        }
+      }
+      .culture-content-card .image-container {
+        flex: 0 0 40%;
+        min-height: 300px;
+      }
+      .culture-content-card .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 0.75rem;
+      }
+      .culture-content-card .text-container {
+        flex: 1 1 60%;
+      }
+      .culture-content-card .content-category {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--brand-primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .culture-content-card .content-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-light);
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+      }
+      .culture-content-card .content-desc {
+        font-size: 1rem;
+        line-height: 1.7;
+        color: var(--text-dark);
+      }
+      .culture-back-button {
+        background-color: var(--brand-secondary);
+        color: var(--text-light);
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 9999px;
+        transition: all 0.3s ease;
+        margin-top: 1.5rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .culture-back-button:hover {
+        background-color: var(--brand-primary);
+        color: var(--bg-dark);
+      }
+      /* =========================================================== */
+      /* KẾT THÚC: CSS CHO LA BÀN VĂN HÓA                           */
+      /* =========================================================== */
+      /* =========================================================== */
+      /* BẮT ĐẦU: CSS CHO HIỆU ỨNG XOAY LA BÀN                   */
+      /* =========================================================== */
+
+      /* 1. Định nghĩa animation để xoay tròn */
+      @keyframes rotate-compass {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* 2. Định nghĩa animation để xoay ngược, giữ cho nội dung đứng yên */
+      @keyframes counter-rotate-compass {
+        from {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        to {
+          transform: translate(-50%, -50%) rotate(-360deg);
+        }
+      }
+
+      /* 3. Áp dụng animation xoay cho container chứa các điểm la bàn */
+      #compass-points {
+        animation: rotate-compass 45s linear infinite; /* Xoay 1 vòng hết 45 giây */
+      }
+
+      /* 4. Áp dụng animation xoay ngược cho từng điểm để giữ chúng thẳng đứng */
+      .compass-point {
+        animation: counter-rotate-compass 45s linear infinite; /* Phải có cùng thời gian với trên */
+      }
+
+      /* =========================================================== */
+      /* KẾT THÚC: CSS CHO HIỆU ỨNG XOAY LA BÀN                    */
+      /* =========================================================== */
     </style>
   </head>
   <body class="antialiased">
@@ -770,71 +984,97 @@
         </div>
       </section>
 
-      <section id="culture" class="py-24 bg-[var(--bg-dark)]">
+      <section id="culture" class="py-24 bg-[var(--bg-dark)] overflow-hidden">
         <div class="container mx-auto px-6 fade-in-section">
-          <h2
-            class="text-3xl md:text-4xl font-bold text-white mb-4 text-center"
-            data-lang-key="culture.title"
-          >
-            Bản Sắc Văn Hóa Miền Trung
-          </h2>
-          <p
-            class="text-[var(--text-dark)] max-w-3xl mx-auto mb-16 text-center"
-            data-lang-key="culture.intro"
-          >
-            Đà Nẵng không chỉ là thành phố của những cây cầu, mà còn là một
-            không gian văn hóa đặc sắc, nơi giao hòa giữa truyền thống và hiện
-            đại, giữa bản sắc địa phương và tinh thần hội nhập.
-          </p>
-
-          <div class="mb-16 bg-[var(--bg-medium)] p-8 rounded-lg shadow-lg">
-            <h3
-              class="text-2xl font-bold text-white mb-4"
-              data-lang-key="culture.people.title"
+          <div class="text-center mb-16">
+            <h2
+              class="text-3xl md:text-4xl font-bold text-white mb-4"
+              data-lang-key="culture.title"
             >
-              Con Người Đà Nẵng
-            </h3>
+              Bản Sắc Văn Hóa Miền Trung
+            </h2>
             <p
-              class="text-[var(--text-dark)]"
-              data-lang-key="culture.people.desc"
+              class="text-[var(--text-dark)] max-w-3xl mx-auto"
+              data-lang-key="culture.intro"
             >
-              Con người Đà Nẵng nổi bật bởi sự hiền hòa, thật thà, thân thiện và
-              trọng nghĩa tình. Trong cách giao tiếp, cư xử, người Đà Nẵng luôn
-              toát lên sự chân thành, mến khách. Chính điều này đã khiến du
-              khách đến Đà Nẵng không chỉ "xem cảnh mà còn “gặp người'. Tinh
-              thần sống kỷ cương, văn minh, ý thức bảo vệ môi trường, ứng xử
-              cộng đồng tốt là những giá trị văn hóa hiện đại đáng học hỏi.
+              Đà Nẵng không chỉ là thành phố của những cây cầu, mà còn là một
+              không gian văn hóa đặc sắc, nơi giao hòa giữa truyền thống và hiện
+              đại. Hãy chạm vào la bàn để khám phá.
             </p>
           </div>
 
-          <div class="mb-20">
-            <h3
-              class="text-2xl md:text-3xl font-bold text-white mb-10 text-center"
-              data-lang-key="culture.festivals.title"
-            >
-              Lễ Hội Sôi Động
-            </h3>
+          <div
+            id="culture-interactive-wrapper"
+            class="relative min-h-[600px] flex items-center justify-center"
+          >
             <div
-              id="festivals-grid"
-              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6"
+              id="culture-content-display"
+              class="absolute inset-0 w-full h-full opacity-0 pointer-events-none transform scale-95"
             ></div>
-          </div>
 
-          <div>
-            <h3
-              class="text-2xl md:text-3xl font-bold text-white mb-10 text-center"
-              data-lang-key="culture.heritage.title"
+            <div
+              id="culture-compass"
+              class="w-full h-full flex items-center justify-center transition-all duration-700 ease-in-out"
             >
-              Di Sản Trăm Năm
-            </h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
-              <div id="heritage-non-nuoc"></div>
-              <div id="heritage-cham"></div>
+              <div class="relative w-[500px] h-[500px]">
+                <svg
+                  class="absolute inset-0 w-full h-full"
+                  viewBox="0 0 500 500"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="250"
+                    cy="250"
+                    r="249"
+                    stroke="var(--brand-secondary)"
+                    stroke-width="2"
+                  />
+                  <circle
+                    cx="250"
+                    cy="250"
+                    r="160"
+                    stroke="var(--brand-secondary)"
+                    stroke-width="1"
+                    stroke-dasharray="4 8"
+                  />
+                  <line
+                    x1="250"
+                    y1="50"
+                    x2="250"
+                    y2="450"
+                    stroke="var(--brand-secondary)"
+                    stroke-width="1"
+                    opacity="0.5"
+                  />
+                  <line
+                    x1="50"
+                    y1="250"
+                    x2="450"
+                    y2="250"
+                    stroke="var(--brand-secondary)"
+                    stroke-width="1"
+                    opacity="0.5"
+                  />
+                </svg>
+
+                <div
+                  class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-[var(--bg-medium)] rounded-full flex items-center justify-center text-center shadow-2xl"
+                >
+                  <div class="font-logo text-3xl text-[var(--brand-primary)]">
+                    Soul of Danang
+                  </div>
+                </div>
+
+                <div
+                  id="compass-points"
+                  class="absolute inset-0 w-full h-full"
+                ></div>
+              </div>
             </div>
           </div>
         </div>
       </section>
-
       <section id="history" class="bg-[var(--bg-medium)]">
         <div id="scrolly">
           <div id="scrolly-vis"><div id="scrolly-vis-content"></div></div>
@@ -992,18 +1232,22 @@
             © 2025 DanaSoul. Một sản phẩm dự thi "Hành trình Thống nhất".
           </p>
           <div class="flex space-x-6">
-            <a href="#" class="hover:text-white"
-              ><i data-lucide="facebook" class="w-6 h-6"></i
-            ></a>
-            <a href="#" class="hover:text-white"
-              ><i data-lucide="instagram" class="w-6 h-6"></i
-            ></a>
-            <a href="#" class="hover:text-white"
-              ><i data-lucide="twitter" class="w-6 h-6"></i
-            ></a>
-            <a href="#" class="hover:text-white"
-              ><i data-lucide="youtube" class="w-6 h-6"></i
-            ></a>
+            <a
+              href="https://www.facebook.com/profile.php?id=61577256631379"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-white"
+            >
+              <i data-lucide="facebook" class="w-6 h-6"></i>
+            </a>
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=info@danasoul.id.vn"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="hover:text-white"
+            >
+              <i data-lucide="mail" class="w-6 h-6"></i>
+            </a>
           </div>
         </div>
       </div>
@@ -1495,43 +1739,93 @@
               },
             ],
             culture: {
-              festivals: [
-                {
-                  title: "Lễ hội Quán Thế Âm",
-                  desc: "Diễn ra vào ngày 19/2 Âm lịch tại Ngũ Hành Sơn, là lễ hội Phật giáo lớn, cầu quốc thái dân an.",
-                  image: "images/Van hoa/Lễ hội Quán Thế Âm.png",
+              // Thay thế toàn bộ mục culture cũ bằng mục này
+              title: "Bản Sắc Văn Hóa Miền Trung",
+              intro:
+                "Đà Nẵng không chỉ là thành phố của những cây cầu, mà còn là một không gian văn hóa đặc sắc, nơi giao hòa giữa truyền thống và hiện đại. Hãy chạm vào la bàn để khám phá.",
+              categories: {
+                people: {
+                  id: "people",
+                  label: "Con Người",
+                  icon: "users",
+                  title: "Con Người Đà Nẵng",
+                  desc: "Con người Đà Nẵng nổi bật bởi sự hiền hòa, thật thà, thân thiện và trọng nghĩa tình. Trong cách giao tiếp, cư xử, người Đà Nẵng luôn toát lên sự chân thành, mến khách. Chính điều này đã khiến du khách đến Đà Nẵng không chỉ 'xem cảnh mà còn “gặp người'. Tinh thần sống kỷ cương, văn minh, ý thức bảo vệ môi trường, ứng xử cộng đồng tốt là những giá trị văn hóa hiện đại đáng học hỏi.",
+                  image: "images/Van hoa/con_nguoi_da_nang.jpeg",
                 },
-                {
-                  title: "Lễ hội Cầu Ngư",
-                  desc: "Tổ chức vào tháng 2-4 Âm lịch tại các làng chài, cầu mong một mùa biển bội thu, an toàn.",
-                  image: "images/Van hoa/Lễ Cầu Ngư.png",
+                festivals: {
+                  id: "festivals",
+                  label: "Lễ Hội",
+                  icon: "calendar-heart",
+                  items: [
+                    {
+                      id: "diff",
+                      title: "Pháo hoa Quốc tế (DIFF)",
+                      desc: "Sự kiện thường niên vào tháng 6-7, nơi các quốc gia trình diễn pháo hoa nghệ thuật rực rỡ trên bầu trời sông Hàn, một bữa tiệc của âm thanh và ánh sáng.",
+                      image: "images/Van hoa/DIFF.jpg",
+                    },
+                    {
+                      id: "quan-the-am",
+                      title: "Lễ hội Quán Thế Âm",
+                      desc: "Diễn ra vào ngày 19/2 Âm lịch tại Ngũ Hành Sơn, là một trong những lễ hội Phật giáo lớn nhất, cầu quốc thái dân an và là dịp để tìm về sự thanh tịnh.",
+                      image: "images/Van hoa/Lễ hội Quán Thế Âm.png",
+                    },
+                    {
+                      id: "cau-ngu",
+                      title: "Lễ hội Cầu Ngư",
+                      desc: "Tổ chức vào tháng 2-4 Âm lịch tại các làng chài ven biển. Lễ hội mang đậm tín ngưỡng dân gian, cầu mong một mùa biển bội thu và bình an cho ngư dân.",
+                      image: "images/Van hoa/Lễ Cầu Ngư.png",
+                    },
+                    {
+                      id: "bai-choi",
+                      title: "Hát Bài Chòi",
+                      desc: "Di sản văn hóa phi vật thể của UNESCO, là một loại hình nghệ thuật hát đối và trò chơi dân gian độc đáo, thường diễn ra vào dịp lễ Tết bên sông Hàn.",
+                      image: "images/Van hoa/bài chòi.png",
+                    },
+                  ],
                 },
-                {
-                  title: "Hát Bài Chòi",
-                  desc: "Di sản UNESCO, là nghệ thuật hát đối và trò chơi dân gian diễn ra dịp lễ Tết bên sông Hàn.",
-                  image: "images/Van hoa/bài chòi.png",
+                heritage: {
+                  id: "heritage",
+                  label: "Di Sản",
+                  icon: "gem",
+                  items: [
+                    {
+                      id: "cham-museum",
+                      title: "Bảo tàng Điêu khắc Chăm",
+                      desc: "Là bảo tàng duy nhất trên thế giới về nghệ thuật Chăm, lưu giữ hơn 2.000 hiện vật vô giá. Đây là kho báu giúp khám phá một nền văn minh rực rỡ từng tồn tại ở miền Trung Việt Nam.",
+                      image: "images/Van hoa/bảo tàng chăm.png",
+                    },
+                    {
+                      id: "non-nuoc",
+                      title: "Làng đá Non Nước",
+                      desc: "Với hơn 400 năm lịch sử, làng nghề dưới chân Ngũ Hành Sơn là nơi kết tinh kỹ thuật điêu khắc dân gian và tinh thần lao động cần mẫn, tạo ra những sản phẩm đá mỹ nghệ tinh xảo.",
+                      image: "images/Van hoa/làng đá mỹ nghệ non nước.png",
+                    },
+                  ],
                 },
-                {
-                  title: "Pháo hoa Quốc tế (DIFF)",
-                  desc: "Sự kiện thường niên vào tháng 6-7, nơi các quốc gia trình diễn pháo hoa nghệ thuật rực rỡ.",
-                  image: "images/Van hoa/DIFF.png",
-                },
-                {
-                  title: "Lễ hội Đèn lồng",
-                  desc: "Không gian lung linh, huyền ảo vào dịp Tết và Trung Thu tại Cầu Tình Yêu, đường Bạch Đằng.",
-                  image: "images/Van hoa/lễ hội đèn lồng.png",
-                },
-              ],
-              heritage: {
-                nonNuoc: {
-                  title: "Làng đá Non Nước",
-                  desc: "Với hơn 400 năm lịch sử, làng nghề dưới chân Ngũ Hành Sơn là nơi kết tinh kỹ thuật điêu khắc dân gian và tinh thần lao động cần mẫn, tạo ra những sản phẩm đá mỹ nghệ tinh xảo.",
-                  image: "images/Van hoa/làng đá mỹ nghệ non nước.png",
-                },
-                chamMuseum: {
-                  title: "Bảo tàng Điêu khắc Chăm",
-                  desc: "Là bảo tàng duy nhất trên thế giới về nghệ thuật Chăm, lưu giữ hơn 2.000 hiện vật. Đây là kho báu giúp khám phá một nền văn minh rực rỡ từng tồn tại ở miền Trung Việt Nam.",
-                  image: "images/Van hoa/bảo tàng chăm.png",
+                crafts: {
+                  id: "crafts",
+                  label: "Làng Nghề",
+                  icon: "palette",
+                  items: [
+                    {
+                      id: "thanh-ha",
+                      title: "Làng gốm Thanh Hà",
+                      desc: "Nằm bên sông Thu Bồn, làng gốm hơn 500 năm tuổi này nổi tiếng với các sản phẩm gốm đất nung không tráng men, được tạo tác hoàn toàn bằng tay và nung bằng lò củi truyền thống, tạo ra màu sắc và âm thanh độc đáo.",
+                      image: "images/Van hoa/lang_gom_thanh_ha.jpg",
+                    },
+                    {
+                      id: "kim-bong",
+                      title: "Làng mộc Kim Bồng",
+                      desc: "Là cái nôi của nghề mộc xứ Quảng, những người thợ Kim Bồng đã góp phần tạo nên kiến trúc cổ kính của Hội An. Sản phẩm của làng nổi tiếng với kỹ thuật chạm trổ tinh xảo trên các sản phẩm từ đồ gia dụng đến thuyền bè.",
+                      image: "images/Van hoa/lang_moc_kim_bong.jpg",
+                    },
+                    {
+                      id: "cam-ne",
+                      title: "Làng chiếu Cẩm Nê",
+                      desc: "Từng là sản phẩm tiến vua triều Nguyễn, chiếu hoa Cẩm Nê nổi tiếng vì sợi cói nhỏ, bền, và hoa văn tinh xảo. Tiếng đập chiếu lách cách đã trở thành một nét âm thanh đặc trưng của làng quê Đà Nẵng.",
+                      image: "images/Van hoa/lang_chieu_cam_ne.jpg",
+                    },
+                  ],
                 },
               },
             },
@@ -1851,43 +2145,93 @@
               },
             ],
             culture: {
-              festivals: [
-                {
-                  title: "Avalokiteshvara Festival",
-                  desc: "Held on the 19th day of the 2nd lunar month at Marble Mountains, this is a major Buddhist festival praying for national peace.",
-                  image: "images/Van hoa/Lễ hội Quán Thế Âm.png",
+              // Replace the old culture object with this one
+              title: "The Cultural Identity of Central Vietnam",
+              intro:
+                "Da Nang is not only a city of bridges but also a unique cultural space, where tradition and modernity harmonize. Touch the compass to explore.",
+              categories: {
+                people: {
+                  id: "people",
+                  label: "The People",
+                  icon: "users",
+                  title: "The People of Da Nang",
+                  desc: "The people of Da Nang are known for being gentle, honest, friendly, and loyal. In communication and behavior, they always exude sincerity and hospitality. This makes visitors not only 'see the sights' but also 'meet the people'. The spirit of disciplined living, environmental awareness, and good community conduct are admirable modern cultural values.",
+                  image: "images/Van hoa/con_nguoi_da_nang.jpg",
                 },
-                {
-                  title: "Cau Ngu Festival",
-                  desc: "Organized in the 2nd-4th lunar months in fishing villages, praying for a bountiful and safe fishing season.",
-                  image: "images/Van hoa/Lễ Cầu Ngư.png",
+                festivals: {
+                  id: "festivals",
+                  label: "Festivals",
+                  icon: "calendar-heart",
+                  items: [
+                    {
+                      id: "diff",
+                      title: "Int'l Fireworks Festival (DIFF)",
+                      desc: "An annual event in June-July where countries perform spectacular artistic fireworks displays over the Han River, a feast of sound and light.",
+                      image: "images/Van hoa/DIFF.jpg",
+                    },
+                    {
+                      id: "quan-the-am",
+                      title: "Avalokiteshvara Festival",
+                      desc: "Held on the 19th day of the 2nd lunar month at Marble Mountains, it's one of the largest Buddhist festivals, praying for peace and offering a moment of tranquility.",
+                      image: "images/Van hoa/Lễ hội Quán Thế Âm.png",
+                    },
+                    {
+                      id: "cau-ngu",
+                      title: "Cau Ngu Festival (Whale Worship)",
+                      desc: "Organized in the 2nd-4th lunar months in coastal fishing villages. The festival is rich in folk beliefs, praying for a bountiful fishing season and safety for fishermen.",
+                      image: "images/Van hoa/Lễ Cầu Ngư.png",
+                    },
+                    {
+                      id: "bai-choi",
+                      title: "Bai Choi Singing",
+                      desc: "A UNESCO Intangible Cultural Heritage, this is a unique art form of call-and-response singing and a folk game, often held during Tet holidays by the Han River.",
+                      image: "images/Van hoa/bài chòi.png",
+                    },
+                  ],
                 },
-                {
-                  title: "Bai Choi Singing",
-                  desc: "A UNESCO Intangible Heritage, a folk art form combining singing duels and a game, held during Tet holidays.",
-                  image: "images/Van hoa/bài chòi.png",
+                heritage: {
+                  id: "heritage",
+                  label: "Heritage",
+                  icon: "gem",
+                  items: [
+                    {
+                      id: "cham-museum",
+                      title: "Cham Sculpture Museum",
+                      desc: "The world's only museum dedicated to Cham art, housing over 2,000 priceless artifacts. It's a treasure trove for exploring a brilliant civilization that once flourished in Central Vietnam.",
+                      image: "images/Van hoa/bảo tàng chăm.png",
+                    },
+                    {
+                      id: "non-nuoc",
+                      title: "Non Nuoc Stone Village",
+                      desc: "With over 400 years of history, this craft village at the foot of the Marble Mountains crystallizes folk carving techniques and diligent labor, creating exquisite stone art products.",
+                      image: "images/Van hoa/làng đá mỹ nghệ non nước.png",
+                    },
+                  ],
                 },
-                {
-                  title: "International Fireworks Festival (DIFF)",
-                  desc: "An annual event in June-July where countries perform spectacular artistic fireworks displays.",
-                  image: "images/Van hoa/DIFF.png",
-                },
-                {
-                  title: "Lantern Festival",
-                  desc: "A sparkling, magical space during Tet and Mid-Autumn Festival at the Love Bridge and Bach Dang street.",
-                  image: "images/Van hoa/lễ hội đèn lồng.png",
-                },
-              ],
-              heritage: {
-                nonNuoc: {
-                  title: "Non Nuoc Stone Village",
-                  desc: "With over 400 years of history, this craft village at the foot of the Marble Mountains crystallizes folk carving techniques and diligent labor, creating exquisite stone art products.",
-                  image: "images/Van hoa/làng đá mỹ nghệ non nước.png",
-                },
-                chamMuseum: {
-                  title: "Cham Sculpture Museum",
-                  desc: "The world's only museum dedicated to Cham art, housing over 2,000 artifacts. It is a treasure trove for exploring a brilliant civilization that once flourished in Central Vietnam.",
-                  image: "images/Van hoa/bảo tàng chăm.png",
+                crafts: {
+                  id: "crafts",
+                  label: "Craft Villages",
+                  icon: "palette",
+                  items: [
+                    {
+                      id: "thanh-ha",
+                      title: "Thanh Ha Pottery Village",
+                      desc: "Located by the Thu Bon River, this 500-year-old pottery village is famous for its unglazed terracotta products, entirely handmade and fired in traditional wood kilns, creating unique colors and sounds.",
+                      image: "images/Van hoa/lang_gom_thanh_ha.jpg",
+                    },
+                    {
+                      id: "kim-bong",
+                      title: "Kim Bong Carpentry Village",
+                      desc: "As the cradle of Quang Nam carpentry, Kim Bong's artisans contributed to the ancient architecture of Hoi An. The village's products are renowned for their sophisticated carving techniques on items from furniture to boats.",
+                      image: "images/Van hoa/lang_moc_kim_bong.jpg",
+                    },
+                    {
+                      id: "cam-ne",
+                      title: "Cam Ne Mat Weaving Village",
+                      desc: "Once a product presented to the Nguyen emperors, Cam Ne mats are famous for their durable, small sedge fibers and intricate patterns. The rhythmic sound of the looms has become a characteristic feature of this Da Nang village.",
+                      image: "images/Van hoa/lang_chieu_cam_ne.jpg",
+                    },
+                  ],
                 },
               },
             },
@@ -2102,6 +2446,7 @@
             "images/Trang chu/10.png",
             "images/Trang chu/11.png",
             "images/Trang chu/12.png",
+            "images/Trang chu/binh_minh__1.jpg",
           ];
           const slideshowContainer = document.getElementById("hero-slideshow");
           heroImages.forEach((src, index) => {
@@ -2378,56 +2723,272 @@
           setTimeout(() => modal.classList.add("hidden"), 300);
         };
 
-        // --- HIỂN THỊ VĂN HÓA ---
+        // ====================================================================================
+        // BẮT ĐẦU: JS LA BÀN VĂN HÓA - PHIÊN BẢN BẤM ĐỂ HIỆN, BẤM NGOÀI ĐỂ ẨN
+        // ====================================================================================
+        let isCultureContentVisible = false; // Biến để theo dõi trạng thái hiển thị
+
         const renderCulture = () => {
-          const festivalsGrid = document.getElementById("festivals-grid");
-          const heritageNonNuoc = document.getElementById("heritage-non-nuoc");
-          const heritageCham = document.getElementById("heritage-cham");
+          const compassPointsContainer =
+            document.getElementById("compass-points");
+          if (!compassPointsContainer) return;
 
+          // Tạm dừng animation để tránh lỗi góc xoay khi chuyển ngữ
+          const oldAnimation = compassPointsContainer.style.animation;
+          compassPointsContainer.style.animation = "none";
+          void compassPointsContainer.offsetHeight;
+
+          // Bắt đầu vẽ lại la bàn
           const cultureData = data[currentLanguage].culture;
+          const categories = cultureData.categories;
+          const positions = [
+            { top: "12%", left: "50%" },
+            { top: "50%", left: "88%" },
+            { top: "88%", left: "50%" },
+            { top: "50%", left: "12%" },
+          ];
+          const categoryKeys = ["people", "festivals", "heritage", "crafts"];
 
-          // Render Festivals
-          festivalsGrid.innerHTML = "";
-          cultureData.festivals.forEach((festival) => {
-            const card = document.createElement("div");
-            card.className =
-              "culture-card bg-[var(--bg-medium)] rounded-lg shadow-lg hover:shadow-green-900/20 transition-all duration-300 transform hover:-translate-y-2 text-center flex flex-col";
-            card.innerHTML = `
-              <div class="culture-card-img-wrapper rounded-t-lg flex-shrink-0 h-48">
-                <img src="${festival.image}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/1A2B22/EAE7D5?text=Lễ+Hội';" alt="${festival.title}" class="w-full h-full object-cover rounded-t-lg">
-              </div>
-              <div class="p-5 flex flex-col flex-grow">
-                <h4 class="text-xl font-bold text-white">${festival.title}</h4>
-                <p class="text-[var(--text-dark)] mt-2 text-sm flex-grow">${festival.desc}</p>
-              </div>
-            `;
-            festivalsGrid.appendChild(card);
+          compassPointsContainer.innerHTML = "";
+
+          categoryKeys.forEach((key, index) => {
+            const category = categories[key];
+            const pos = positions[index];
+            const point = document.createElement("div");
+            point.className = "compass-point";
+            point.style.top = pos.top;
+            point.style.left = pos.left;
+            point.dataset.category = key;
+            point.innerHTML = `
+      <div class="icon-wrapper">
+        <i data-lucide="${category.icon}" class="w-10 h-10"></i>
+      </div>
+      <div class="point-label">${category.label}</div>
+    `;
+
+            // SỰ KIỆN KHI BẤM VÀO ĐIỂM "CON NGƯỜI"
+            if (key === "people") {
+              point.addEventListener("click", () => showCultureContent(key));
+            }
+
+            const subItemsContainer = document.createElement("div");
+            subItemsContainer.className = "sub-item-container";
+            point.appendChild(subItemsContainer);
+
+            // SỰ KIỆN KHI HOVER VÀO CÁC ĐIỂM CÓ MỤC CON
+            point.addEventListener("mouseenter", () => {
+              if (key === "people") return;
+              const currentSubItems =
+                subItemsContainer.querySelectorAll(".sub-item");
+              currentSubItems.forEach((si, i) => {
+                si.style.transform = "translate(-50%, -50%) scale(1)";
+                si.style.opacity = "1";
+              });
+            });
+            point.addEventListener("mouseleave", () => {
+              if (key === "people") return;
+              const currentSubItems =
+                subItemsContainer.querySelectorAll(".sub-item");
+              currentSubItems.forEach((si) => {
+                si.style.transform = "translate(-50%, -50%) scale(0)";
+                si.style.opacity = "0";
+              });
+            });
+
+            if (key !== "people") {
+              // --- BẮT ĐẦU THAY ĐỔI ---
+              // Dàn đều các góc ra một cung rộng hơn (180 độ cho Lễ hội và Làng nghề)
+              const subItemAngles = {
+                festivals: [-90, -30, 30, 90],
+                heritage: [-60, 60],
+                crafts: [-90, 0, 90],
+              };
+
+              category.items.forEach((item, itemIndex) => {
+                const angle = subItemAngles[key][itemIndex];
+                // TĂNG MẠNH KHOẢNG CÁCH để không chồng chéo
+                const distance = 200;
+                const subItem = document.createElement("div");
+                subItem.className = "sub-item";
+                subItem.style.opacity = "0"; // Ban đầu ẩn đi
+                subItem.style.transform = "translate(-50%, -50%) scale(0)";
+
+                subItem.innerHTML = `
+          <div class="sub-item-icon" style="background-image: url('${item.image}')"></div>
+          <div class="sub-item-tooltip">${item.title}</div>
+        `;
+
+                const angleRad = (angle * Math.PI) / 180;
+                const containerRect =
+                  compassPointsContainer.getBoundingClientRect();
+                let x, y;
+
+                if (key === "festivals") {
+                  x =
+                    parseFloat(pos.left) +
+                    (distance / containerRect.width) *
+                      100 *
+                      Math.cos(angleRad + Math.PI);
+                  y =
+                    parseFloat(pos.top) +
+                    (distance / containerRect.height) *
+                      100 *
+                      Math.sin(angleRad + Math.PI);
+                } else if (key === "crafts") {
+                  x =
+                    parseFloat(pos.left) +
+                    (distance / containerRect.width) * 100 * Math.cos(angleRad);
+                  y =
+                    parseFloat(pos.top) +
+                    (distance / containerRect.height) *
+                      100 *
+                      Math.sin(angleRad);
+                } else {
+                  x =
+                    parseFloat(pos.left) +
+                    (distance / containerRect.width) *
+                      100 *
+                      Math.cos(angleRad - Math.PI / 2);
+                  y =
+                    parseFloat(pos.top) +
+                    (distance / containerRect.height) *
+                      100 *
+                      Math.sin(angleRad - Math.PI / 2);
+                }
+
+                subItem.style.left = `${x}%`;
+                subItem.style.top = `${y}%`;
+
+                // SỰ KIỆN KHI BẤM VÀO MỤC CON
+                subItem.addEventListener("click", (e) => {
+                  e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+                  showCultureContent(key, item.id);
+                });
+
+                subItemsContainer.appendChild(subItem);
+              });
+            }
+
+            compassPointsContainer.appendChild(point);
           });
 
-          // Render Heritage Sites
-          const nonNuocData = cultureData.heritage.nonNuoc;
-          heritageNonNuoc.innerHTML = `
-            <div class="bg-[var(--bg-medium)] rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
-                <img src="${nonNuocData.image}" onerror="this.onerror=null;this.src='https://placehold.co/800x600/1A2B22/EAE7D5?text=Di+Sản';" alt="${nonNuocData.title}" class="w-full h-64 object-cover">
-                <div class="p-6 flex-grow">
-                    <h4 class="text-2xl font-bold text-white mb-2">${nonNuocData.title}</h4>
-                    <p class="text-[var(--text-dark)]">${nonNuocData.desc}</p>
-                </div>
-            </div>
-          `;
+          lucide.createIcons();
 
-          const chamData = cultureData.heritage.chamMuseum;
-          heritageCham.innerHTML = `
-             <div class="bg-[var(--bg-medium)] rounded-lg shadow-lg overflow-hidden h-full flex flex-col">
-                <img src="${chamData.image}" onerror="this.onerror=null;this.src='https://placehold.co/800x600/1A2B22/EAE7D5?text=Di+Sản';" alt="${chamData.title}" class="w-full h-64 object-cover">
-                <div class="p-6 flex-grow">
-                    <h4 class="text-2xl font-bold text-white mb-2">${chamData.title}</h4>
-                    <p class="text-[var(--text-dark)]">${chamData.desc}</p>
-                </div>
-            </div>
-          `;
+          // Khôi phục lại animation
+          setTimeout(() => {
+            compassPointsContainer.style.animation = oldAnimation;
+          }, 0);
         };
 
+        const showCultureContent = (categoryKey, itemId = null) => {
+          const cultureData = data[currentLanguage].culture.categories;
+          const contentDisplay = document.getElementById(
+            "culture-content-display"
+          );
+          const compass = document.getElementById("culture-compass");
+          let itemData;
+          let categoryLabel;
+
+          if (itemId) {
+            itemData = cultureData[categoryKey].items.find(
+              (i) => i.id === itemId
+            );
+            categoryLabel = cultureData[categoryKey].label;
+          } else {
+            itemData = cultureData[categoryKey];
+            categoryLabel = "";
+          }
+
+          if (!itemData) return;
+
+          contentDisplay.innerHTML = `
+    <div class="culture-content-card">
+      <div class="image-container">
+        <img src="${
+          itemData.image
+        }" onerror="this.onerror=null;this.src='https://placehold.co/600x800/1A2B22/EAE7D5?text=DanaSoul';" alt="${
+            itemData.title
+          }">
+      </div>
+      <div class="text-container">
+        ${
+          categoryLabel
+            ? `<div class="content-category">${categoryLabel}</div>`
+            : ""
+        }
+        <h3 class="content-title">${itemData.title}</h3>
+        <p class="content-desc">${itemData.desc}</p>
+      </div>
+    </div>
+  `;
+
+          isCultureContentVisible = true; // Đánh dấu là nội dung đang hiển thị
+
+          gsap
+            .timeline()
+            .to(compass, {
+              opacity: 0,
+              scale: 0.9,
+              duration: 0.5,
+              ease: "power2.inOut",
+            })
+            .set(compass, { pointerEvents: "none" })
+            .set(contentDisplay, { pointerEvents: "auto" }, "<")
+            .to(
+              contentDisplay,
+              { opacity: 1, scale: 1, duration: 0.5, ease: "power2.inOut" },
+              "-=0.3"
+            );
+        };
+
+        const hideCultureContent = () => {
+          if (!isCultureContentVisible) return; // Không làm gì nếu nội dung đang ẩn
+
+          const contentDisplay = document.getElementById(
+            "culture-content-display"
+          );
+          const compass = document.getElementById("culture-compass");
+
+          isCultureContentVisible = false; // Đánh dấu là nội dung đã ẩn
+
+          gsap
+            .timeline()
+            .to(contentDisplay, {
+              opacity: 0,
+              scale: 0.95,
+              duration: 0.5,
+              ease: "power2.inOut",
+            })
+            .set(contentDisplay, { pointerEvents: "none" })
+            .set(compass, { pointerEvents: "auto" }, "<")
+            .to(
+              compass,
+              { opacity: 1, scale: 1, duration: 0.5, ease: "power2.inOut" },
+              "-=0.3"
+            );
+        };
+
+        // Lắng nghe sự kiện click trên toàn bộ trang
+        document.addEventListener("click", function (event) {
+          if (!isCultureContentVisible) return;
+
+          const contentCard = document.querySelector(".culture-content-card");
+          const compassPoints = document.getElementById("compass-points");
+
+          // Kiểm tra xem có phải bấm vào chính la bàn hay thẻ nội dung không
+          const isClickInsideCard =
+            contentCard && contentCard.contains(event.target);
+          const isClickOnCompass =
+            compassPoints && compassPoints.contains(event.target);
+
+          // Nếu bấm ra ngoài cả 2, thì ẩn đi
+          if (!isClickInsideCard && !isClickOnCompass) {
+            hideCultureContent();
+          }
+        });
+        // ====================================================================================
+        // KẾT THÚC: JS LA BÀN VĂN HÓA - PHIÊN BẢN MỚI
+        // ====================================================================================
         // --- SCROLLYTELLING ---
         const renderHistory = () => {
           const scrollyVis = document.getElementById("scrolly-vis-content");
@@ -3123,10 +3684,51 @@
         closeContactOuter.addEventListener("click", closeContactModal);
 
         contactForm.addEventListener("submit", (e) => {
-          e.preventDefault();
-          contactFormContainer.classList.add("hidden");
-          successMessage.classList.remove("hidden");
-          lucide.createIcons(); // Re-render icons if needed
+          e.preventDefault(); // Ngăn form tải lại trang
+
+          const submitButton = contactForm.querySelector(
+            'button[type="submit"]'
+          );
+          const originalButtonText = submitButton.innerHTML;
+          submitButton.disabled = true;
+          submitButton.innerHTML = "Đang gửi...";
+
+          // Lấy dữ liệu từ form
+          const formData = {
+            name: contactForm.querySelector("#name").value,
+            email: contactForm.querySelector("#email").value,
+            message: contactForm.querySelector("#message").value,
+          };
+
+          // Gửi dữ liệu đến backend của bạn
+          fetch("/api/send-email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          })
+            .then((response) => {
+              if (response.ok) {
+                // Thành công
+                contactFormContainer.classList.add("hidden");
+                successMessage.classList.remove("hidden");
+                lucide.createIcons();
+                contactForm.reset();
+              } else {
+                // Thất bại
+                alert("Đã có lỗi xảy ra, vui lòng thử lại.");
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Đã có lỗi xảy ra, vui lòng thử lại.");
+            })
+            .finally(() => {
+              // Khôi phục lại nút bấm
+              submitButton.disabled = false;
+              submitButton.innerHTML = originalButtonText;
+            });
         });
 
         // --- NEW CREATIVE FAREWELL SECTION LOGIC ---
@@ -3246,10 +3848,15 @@
           { title: "Một vòng Việt Nam", path: "music/mot_vong_viet_nam.mp3" },
           { title: "Khát vọng tuổi trẻ", path: "music/khat_vong_tuoi_tre.mp3" },
           {
+            title: "Để mị nói cho mà nghe",
+            path: "music/de_mi_noi_cho_ma_nghe.mp3",
+          },
+          {
             title: "Bay cùng tôi lên bầu trời Việt Nam",
             path: "music/bay_cung_toi_len_bau_troi_VN.mp3",
           },
           { title: "Múa xạp xòe hoa", path: "music/mua_xap_xoe_hoa.mp3" },
+          { title: "Sài Gòn Ơi", path: "music/sai_gon_oi.mp3" },
           { title: "Việt Nam MyHome", path: "music/VIETNAM  My Home.mp3" },
         ];
 
