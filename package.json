@@ -1,0 +1,23 @@
+{
+  "name": "web_danasoul",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tumiqa/Web_DanaSoul.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tumiqa/Web_DanaSoul/issues"
+  },
+  "homepage": "https://github.com/Tumiqa/Web_DanaSoul#readme",
+  "description": "",
+  "dependencies": {
+    "nodemailer": "^7.0.3"
+  }
+}
